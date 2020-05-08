@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moon.dao.ProductMapper">
+  <resultMap id="BaseResultMap" type="com.moon.entity.Product">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="productname" jdbcType="VARCHAR" property="productname" />
+    <result column="imgsrc" jdbcType="VARCHAR" property="imgsrc" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="categoryid" jdbcType="INTEGER" property="categoryid" />
+    <result column="startprice" jdbcType="DOUBLE" property="startprice" />
+    <result column="stepprice" jdbcType="DOUBLE" property="stepprice" />
+    <result column="transactionprice" jdbcType="DOUBLE" property="transactionprice" />
+    <result column="transactiondate" jdbcType="TIMESTAMP" property="transactiondate" />
+    <result column="ownerid" jdbcType="INTEGER" property="ownerid" />
+    <result column="ownername" jdbcType="VARCHAR" property="ownername" />
+    <result column="buyerid" jdbcType="INTEGER" property="buyerid" />
+    <result column="buyername" jdbcType="VARCHAR" property="buyername" />
+    <result column="createdate" jdbcType="TIMESTAMP" property="createdate" />
+    <result column="updatedate" jdbcType="TIMESTAMP" property="updatedate" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="enddate" jdbcType="TIMESTAMP" property="enddate" />
+  </resultMap>
+</mapper>

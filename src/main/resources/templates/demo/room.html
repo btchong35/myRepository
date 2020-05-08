@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{/menu/metisMenu.css}"/>
+    <link rel="stylesheet" th:href="@{/menu/vertical.css}"/>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="row" style="height: 500px">
+        <!--商品介绍-->
+        <div class="col-md-6 " style="text-align: center;height: 100%">
+            <img th:src="${product.imgsrc}" width="200px" height="200px" style="object-fit: contain">
+            <div style="height: 400px;width: 400px;font-size: 20px;" class="text-left">
+                <input type="hidden" th:value="${product.pid}" id="pid-id">
+                <p>名称：<span th:text="${product.productname}"></span></p>
+                <p>上传者：<span th:text="${product.ownername}"></span></p>
+                <p>起拍价：<span th:text="${product.startprice}"></span></p>
+                <p>加价幅度：<span th:text="${product.stepprice}"></span></p>
+                <p>结束时间：<span th:text="${#dates.format(product.enddate,'yyyy-MM-dd')}"></span></p>
+            </div>
+        </div>
+        <!--拍卖框-->
+        <div class="col-md-6 " style="height: 100%;">
+            <div id="chatbox-id" style="height: 400px;width: 400px;overflow: auto" class="table-bordered">
+                <div v-for="msg in msgdata">
+                    <div>{{msg.sender}}-->{{msg.receiver}}   {{msg.time}}</div>
+                    <div>{{msg.content}}</div>
+                </div>
+            </div>
+            <div class="form-inline">
+                <input class="form-control" id="msg-id">
+                <button class="btn btn-default" onclick="sendmsg()">发送</button>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+<!-- js -->
+<script th:src="@{/moon/js/vue.js}"></script>
+<script th:src="@{/moon/js/jquery.js}"></script>
+<script th:src="@{/layer/layer.js}"></script>
+<script th:src="@{/menu/metisMenu.js}"></script>
+<script th:src="@{/moon/js/popper.js}"></script>
+<script th:src="@{/moon/js/bootstrap.js}"></script>
+<script th:src="@{/page/jqpaginator.js}"></script>
+<script th:inline="javascript">
+    var vue=new Vue({
+        el:"#app",
+        data:{
+            msgdata:[]
+        }
+    })
+
+    //获取pid
+    var pid=$("#pid-id").val();
+    //ws
+    var api = "ws://" + location.host + "/ws?pid="+pid;
+    var ws=new WebSocket(api);
+    
+    //sendmsg
+    function sendmsg() {
+        ws.send($("#msg-id").val());
+        $("#msg-id").val();
+    }
+
+    //onmsg
+    ws.onmessage=function (ev) {
+        console.log(ev.data);
+        vue.msgdata.push($.parseJSON(ev.data));
+    }
+</script>
+</body>
+</html>

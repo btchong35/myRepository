@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="UTF-8" />
+	<title>MOON</title>
+	<link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}" />
+	<link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}" />
+</head>
+<body class="bg-a">
+<div class="container-fluid" id="app">
+	<div class="row">
+		<div class="col text-center bg-warning text-white shadow">websocket</div>
+	</div>
+	<div class="row">
+		<!-- 显示框 -->
+		<div class="offset-md-2 col-md-8 border border-info" style="height:400px"></div>
+	</div>
+	<div class="row">
+		<input type="text" id="id1">
+		<button onclick="sendmsg()">提交</button>
+	</div>
+</div>
+<!-- js -->
+<script th:src="@{/moon/js/jquery.js}"></script>
+<script th:src="@{/moon/js/vue.js}"></script>
+<script th:src="@{/layer/layer.js}"></script>
+<script th:inline="javascript">
+	//
+	var api="ws://"+location.host+"/ws";
+	var ws=new WebSocket(api);
+
+	ws.onmessage=function(e){
+		layer.msg(e.data);
+	}
+
+	function sendmsg(){
+		ws.send($("#id1").val());
+		$("#id1").val("");
+	}
+</script>
+</body>
+</html>

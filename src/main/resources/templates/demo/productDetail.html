@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{/menu/metisMenu.css}"/>
+    <link rel="stylesheet" th:href="@{/menu/vertical.css}"/>
+</head>
+<body>
+<div class="container" id="app">
+    <!--&lt;!&ndash;标题栏&ndash;&gt;
+    <div class="row bg-warning">
+        <div class="col-md-11">欢迎光临蜗牛拍卖系统</div>
+        <div class="col-md-1">
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-success dropdown-toggle"
+                        data-toggle="dropdown">
+                    <i class="fa fa-user-o"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="/login.html"
+                       th:if="${session.user==null}">登录</a>
+                    <a class="dropdown-item" href="javascript:" onclick="showCenter();" th:if="${session.user!=null}">账号&nbsp;
+                        <span id="account" th:text="${session.user.username}"></span></a>
+                    <a class="dropdown-item" href="/moon/User/logout" th:if="${session.user!=null}">注销</a>
+                </div>
+            </div>
+        </div>
+    </div>-->
+    <!--商品介绍-->
+    <div class="row" style="height: 500px">
+        <!--商品图片-->
+        <div class="col-md-6 " style="text-align: center;height: 100%">
+                <img th:src="${product.imgsrc}" height="300px" width="300px" style="object-fit: contain;margin-top: 90px">
+        </div>
+        <!--文字描述-->
+        <div class="col-md-6 text-info" style="margin-top: 100px;font-size: 20px;font-family: 'Microsoft YaHei'">
+            <div>
+                <p>名称：<span th:text="${product.productname}"></span></p>
+                <p>上传者：<span th:text="${product.ownername}"></span></p>
+                <p>分类：<span th:text="${category.categoryname}"></span></p>
+                <p th:switch="${product.status}">状态：
+                    <span th:case="0">未上架</span>
+                    <span th:case="1">未成交</span>
+                    <span th:case="2">已成交</span>
+                </p>
+                <p>起拍价：<span th:text="${product.startprice}"></span></p>
+                <p>加价幅度：<span th:text="${product.stepprice}"></span></p>
+                <p th:if="${product.status} ==2">成交价：<span th:text="${product.transactionprice}"></span></p>
+                <p th:if="${product.status} ==2">成交日期:<span th:text="${#dates.format(product.transactiondate,'yyyy-MM-dd')}"></span></P>
+                <p th:if="${product.status} ==2">成交人：<span th:text="${product.buyername}"></span></p>
+            </div>
+            <div>
+                <!--未成交状态才显示该链接-->
+
+            </div>
+        </div>
+
+
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center" >
+            <a th:if="${product.status} ==1" class="btn btn-info btn-lg" th:href="@{/moon/room/roomView?productId=1}">进入竞拍间</a>
+        </div>
+    </div>
+
+</div>
+<!-- js -->
+<script th:src="@{/moon/js/vue.js}"></script>
+<script th:src="@{/moon/js/jquery.js}"></script>
+<script th:src="@{/layer/layer.js}"></script>
+<script th:src="@{/menu/metisMenu.js}"></script>
+<script th:src="@{/moon/js/popper.js}"></script>
+<script th:src="@{/moon/js/bootstrap.js}"></script>
+<script th:src="@{/page/jqpaginator.js}"></script>
+<script th:inline="javascript">
+
+</script>
+</body>
+</html>

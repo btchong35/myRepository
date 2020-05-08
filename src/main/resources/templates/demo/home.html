@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8"/>
+    <title>MOON</title>
+    <link rel="stylesheet" th:href="@{/moon/css/bootstrap.css}"/>
+    <link rel="stylesheet" th:href="@{/icon/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" th:href="@{/menu/metisMenu.css}"/>
+    <link rel="stylesheet" th:href="@{/menu/vertical.css}"/>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="row bg-light">
+        <div class="col-md-11">欢迎光临蜗牛拍卖系统</div>
+        <div class="col-md-1">
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span class="glyphicon glyphicon-user"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    <li id="login-id"><a href="/moon/user/login">登录</a></li>
+                    <li class="hidden" id="self-id"><a href="javascript:" onclick="showCenter()" >个人中心</a></li>
+                    <li class="hidden" id="upload-id"><a href="/uploadView">上传商品</a></li>
+                    <li class="hidden" id="logout-id"><a href="#" onclick="logout()">注销</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--搜索-->
+    <div class="row" style="margin-top: 40px">
+        <div class="col-md-4 col-md-offset-4">
+            <input type="text" class="form-control" id="keyword-id">
+        </div>
+        <div class="col-md-1">
+            <button class="form-control glyphicon glyphicon-search" @click="setKeyword();searchByKeyword(1,4);resetPage()"></button>
+        </div>
+    </div>
+    <!--分类导航-->
+    <div class="row mt-5" style="margin-top: 50px">
+        <div class="col">
+            <ul class="nav nav-justified">
+                <li><a href="#" role="presentation" @click="setCategoryId($event);searchByCategory(1,4);resetPage()"
+                       categoryId="0">全部</a></li>
+                <li v-for="e in cateList" role="presentation">
+                    <a href="#"
+                                                                 @click="setCategoryId($event);searchByCategory(1,4);resetPage()"
+                                                                 :categoryId="e.cid">{{e.categoryname}}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!--商品展示-->
+    <div class="row">
+        <div class="col-md-3 table-bordered text-center" style="height: 300px" v-for="e in dataList">
+            <a v-bind:href="'/moon/Product/selectById/'+e.pid">
+                <div style="height: 220px;width: 100%"><img v-bind:src="e.imgsrc" style="width: 100%;height:100%;object-fit: contain;object-position: center"></div>
+                <div v-text="e.productname"></div>
+                <div v-text="'起拍价：'+e.startprice"></div>
+                <div><a v-bind:href="'/moon/room/roomView?productId='+e.pid">进入拍卖室</a></div>
+            </a>
+        </div>
+
+    </div>
+    <!--分页-->
+    <div class="row" style="margin-top: 50px">
+        <div class="col text-center">
+            <div id="pageid" class="pagination"></div>
+        </div>
+    </div>
+    <div id="text"></div>
+
+</div>
+<!-- js -->
+<script th:src="@{/moon/js/vue.js}"></script>
+<script th:src="@{/moon/js/jquery.js}"></script>
+<script th:src="@{/layer/layer.js}"></script>
+<script th:src="@{/menu/metisMenu.js}"></script>
+<script th:src="@{/moon/js/popper.js}"></script>
+<script th:src="@{/moon/js/bootstrap.js}"></script>
+<script th:src="@{/page/jqpaginator.js}"></script>
+<script th:src="@{/moon/js/cookie.jwt.js}"></script>
+<script th:inline="javascript">
+    var currentCategoryId = 0;
+    var currentSearchType = 0;  //0：类型，1：关键字
+    var currentKeyword = "";
+
+    var vue = new Vue({
+        el: "#app",
+        data: {
+            cateList: [],
+            dataList: []
+        },
+        methods: {
+            getCateList: function () {
+                $.post("/moon/Category/findAll", {}, function (data) {
+                    vue.cateList = data;
+                })
+            },
+            /*按分类搜索时点击分页*/
+            showDataByPage: function (curPage) {
+                $.post("/moon/Product/selectByCategory", {
+                    categoryid: currentCategoryId,
+                    pagenum: curPage,
+                    pagesize: 4
+                }, function (data) {
+                    console.log(JSON.stringify(data));
+                    $("#pageid").jqPaginator('option', {
+                        totalPages: data.pagecount
+                    })
+                    vue.dataList = data.list;
+                })
+            },
+            /*点击分类导航*/
+            showDataByCategory: function (categoryId) {
+                currentCategoryId = categoryId;
+                $("#pageid").jqPaginator('option', {
+                    currentPage: 1
+                })
+                this.showDataByPage(1);
+            },
+
+            /*按关键字搜索点击分页时*/
+            showDataByKeywordPage: function (curPage) {
+
+            },
+
+            /*点击搜索按钮*/
+            showDataByKeywordBtn: function (pagenum) {
+                currentSearchType = 1;
+                currentKeyword = $("#keyword-id").val();
+                $.post("/moon/Product/selectByKeyword", {
+                    keyword: currentKeyword,
+                    pagenum: pagenum,
+                    pagesize: 4
+                }, function (data) {
+                    vue.dataList = data.list;
+                    $("#pageid").jqPaginator('option', {
+                        currentPage: 1
+                    })
+                })
+            },
+
+
+            /*优化版*/
+            /*按类型*/
+            searchByCategory: function (pagenum, pagesize) {
+                currentSearchType = 0;
+                $.post("/moon/Product/selectByCategory", {
+                    categoryid: currentCategoryId,
+                    pagenum: pagenum,
+                    pagesize: pagesize
+                }, function (data) {
+                    vue.dataList = data.list;
+                    var a = data.pagecount == 0 ? 1 : data.pagecount;
+                    $("#pageid").jqPaginator('option', {
+                        totalPages: a
+                    })
+                })
+            },
+            /*按关键字*/
+            searchByKeyword: function (pagenum, pagesize) {
+                currentSearchType = 1;
+                $.post("/moon/Product/selectByKeyword", {
+                    keyword: currentKeyword,
+                    pagenum: pagenum,
+                    pagesize: pagesize
+                }, function (data) {
+                    vue.dataList = data.list;
+                    var a = data.pagecount == 0 ? 1 : data.pagecount;
+                    $("#pageid").jqPaginator('option', {
+                        totalPages: a
+                    })
+                })
+            },
+            /*重置分页为第一页*/
+            resetPage: function () {
+                $("#pageid").jqPaginator('option', {
+                    currentPage: 1
+                })
+            },
+            /*设置关键字*/
+            setKeyword: function () {
+                currentKeyword = $("#keyword-id").val();
+            },
+            /*设置分类id*/
+            setCategoryId: function (event) {
+                var id = event.target.getAttribute('categoryId');
+                currentCategoryId = id;
+            }
+
+
+        },
+        mounted: function () {
+            this.getCateList();
+        }
+    })
+
+    /*分页*/
+    $('#pageid').jqPaginator({
+        totalPages: 10,
+        visiblePages: 100,
+        currentPage: 1,
+        first: '<li class="first"><a href="javascript:void(0);">首页</a></li>',
+        prev: '<li class="prev"><a href="javascript:void(0);">上一页</a></li>',
+        next: '<li class="next"><a href="javascript:void(0);">下一页</a></li>',
+        last: '<li class="last"><a href="javascript:void(0);">尾页</a></li>',
+        page: '<li class="page"><a href="javascript:void(0);">{{page}}</a></li>',
+        onPageChange: function (num, type) {
+            if (currentSearchType == 0) {
+                vue.searchByCategory(num, 4);
+            } else if (currentSearchType == 1) {
+                vue.searchByKeyword(num, 4);
+            }
+        }
+    });
+
+
+
+    //显示用户名
+    if($.cookie("token")){
+        var user=$.getckjwt("token");
+        if(user!=null){
+            console.log(user.toString());
+            $("#selfCenter-id").text(user.account);
+            $("#self-id").removeClass("hidden");
+            $("#logout-id").removeClass("hidden");
+            $("#login-id").addClass("hidden");
+            $("#upload-id").removeClass("hidden");
+        }
+
+    }
+
+    //个人中心
+    function showCenter(){
+        layer.open({
+            type:2,
+            content: 'http://120.55.53.172:7000/moon/SysUser/center' + "?token=" + $.cookie("token"),
+            area:[ "80%", "99%" ]
+        })
+    }
+
+    //注销
+    function logout(){
+        $.cookie("token","");
+        location.href = 'http://120.55.53.172:7000/moon/SysUser/logout';
+    }
+
+</script>
+</body>
+</html>
